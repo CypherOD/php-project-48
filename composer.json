@@ -1,0 +1,25 @@
+{
+    "name": "hexlet/code",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Hexlet\\Code\\": "src/"
+        },
+        "files": [
+            "./bin/gendiff"
+        ]
+    },
+    "authors": [
+        {
+            "name": "StandAlone404",
+            "email": "gennadiy.dev@yandex.ru"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^12.1"
+    },
+    "require": {
+        "docopt/docopt": "^1.0"
+    }
+}
