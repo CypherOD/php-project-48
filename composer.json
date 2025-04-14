@@ -2,12 +2,15 @@
     "name": "hexlet/code",
     "type": "library",
     "license": "MIT",
+    "bin": [
+        "bin/gendiff"
+    ],
     "autoload": {
         "psr-4": {
             "Hexlet\\Code\\": "src/"
         },
         "files": [
-            "./bin/gendiff"
+            "./src/Differ.php"
         ]
     },
     "authors": [
@@ -17,7 +20,8 @@
         }
     ],
     "require-dev": {
-        "phpunit/phpunit": "^12.1"
+        "phpunit/phpunit": "^12.1",
+        "symfony/var-dumper": "^7.2"
     },
     "require": {
         "docopt/docopt": "^1.0"

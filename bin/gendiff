@@ -9,6 +9,8 @@ if (file_exists($autoloadPath1)) {
     require_once $autoloadPath2;
 }
 
+use function Hexlet\Code\Differ\getDiff;
+
 $doc = <<<DOC
 Generate diff
 
@@ -25,9 +27,11 @@ DOC;
 
 $args = Docopt::handle($doc);
 
-if (is_file($args['<firstFile>'])) {
-    print_r("Yes");
-} else {
-    print_r("No");
-}
-echo getcwd();
+//if (is_file($args['<firstFile>'])) {
+//    print_r("Yes");
+//} else {
+//    print_r("No");
+//}
+
+$result = getDiff($args['<firstFile>'], $args['<secondFile>']);
+print_r($result);
