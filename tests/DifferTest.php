@@ -27,5 +27,4 @@ class DifferTest extends TestCase
 
         $this->assertStringEqualsFile($pathToResult, $result);
     }
-
 }
