@@ -19,3 +19,4 @@ jobs:
       # run – произвольная bash-команда
       - run: composer install
       - run: make lint
+      - run: make test

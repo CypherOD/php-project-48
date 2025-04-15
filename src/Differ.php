@@ -29,7 +29,7 @@ function getDiffLine(string $key, array $data1, array $data2, string $ident = ' 
         } else {
             return "$ident  $key: $value1";
         }
-    } else if (array_key_exists($key, $data1) && !array_key_exists($key, $data2)) {
+    } elseif (array_key_exists($key, $data1) && !array_key_exists($key, $data2)) {
         $value1 = strValue($data1[$key]);
         return "$ident- $key: $value1";
     } else {
