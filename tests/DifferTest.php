@@ -1,7 +1,7 @@
 <?php
 
-
 use PHPUnit\Framework\TestCase;
+
 use function Hexlet\Code\Differ\getDiff;
 use function Hexlet\Code\Differ\strValue;
 
