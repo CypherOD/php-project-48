@@ -1,11 +1,9 @@
 <?php
 
-namespace Hexlet\Code\DifferTest;
 
 use PHPUnit\Framework\TestCase;
-
-use function Hexlet\Code\Differ\strValue;
 use function Hexlet\Code\Differ\getDiff;
+use function Hexlet\Code\Differ\strValue;
 
 class DifferTest extends TestCase
 {
