@@ -8,10 +8,14 @@ jobs:
   build:
     # операционная система для работы воркфлоу
     runs-on: ubuntu-latest
-    steps: # список шагов, которые надо выполнить
-      # экшен — выполняет какую-то задачу
+    steps:
       # checkout — клонирует репозиторий
       - uses: actions/checkout@v4
+      - name: Setup PHP with composer v2
+        uses: shivammathur/setup-php@v2
+        with:
+            php-version: '8.4'
+            tools: composer:v2
       # run – произвольная bash-команда
-      # ls -la выведет содержимое текущего репозитория
+      - run: composer install
       - run: make lint
