@@ -7,3 +7,6 @@ test-coverage:
 
 test-coverage-text:
 	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-text
+
+lint:
+	./vendor/bin/phpcs . --standard=PSR12 --ignore=vendor/
