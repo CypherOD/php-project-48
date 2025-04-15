@@ -3,6 +3,7 @@
 namespace Hexlet\Code\DifferTest;
 
 use PHPUnit\Framework\TestCase;
+
 use function Hexlet\Code\Differ\strValue;
 use function Hexlet\Code\Differ\getDiff;
 
