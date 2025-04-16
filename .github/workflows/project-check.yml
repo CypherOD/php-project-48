@@ -19,4 +19,9 @@ jobs:
       # run – произвольная bash-команда
       - run: composer install
       - run: make lint
-      - run: make test
+      - run: make test-coverage
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
