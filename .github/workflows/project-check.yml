@@ -7,7 +7,7 @@ jobs:
   # их может быть больше одного
   build:
     # операционная система для работы воркфлоу
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       # checkout — клонирует репозиторий
       - uses: actions/checkout@v4
