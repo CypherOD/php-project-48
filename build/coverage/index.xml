@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <build time="Thu Apr 17 4:52:56 UTC 2025" phpunit="12.1.2" coverage="12.1.2">
+    <runtime name="PHP" version="8.4.6" url="https://www.php.net/"/>
+    <driver name="xdebug" version="3.4.2"/>
+  </build>
+  <project source="/home/user/PhpstormProjects/php-project-48/src">
+    <tests>
+      <test name="Hexlet\Code\DifferTest\DifferTest::testStrValue" size="unknown" status="success"/>
+      <test name="Hexlet\Code\DifferTest\DifferTest::testGetDiff" size="unknown" status="success"/>
+    </tests>
+    <directory name="/">
+      <totals>
+        <lines total="58" comments="0" code="58" executable="29" executed="29" percent="100.00"/>
+        <methods count="0" tested="0" percent="0"/>
+        <functions count="4" tested="4" percent="100.00"/>
+        <classes count="0" tested="0" percent="0"/>
+        <traits count="0" tested="0" percent="0"/>
+      </totals>
+      <file name="Differ.php" href="Differ.php.xml">
+        <totals>
+          <lines total="58" comments="0" code="58" executable="29" executed="29" percent="100.00"/>
+          <methods count="0" tested="0" percent="0"/>
+          <functions count="4" tested="4" percent="100.00"/>
+          <classes count="0" tested="0" percent="0"/>
+          <traits count="0" tested="0" percent="0"/>
+        </totals>
+      </file>
+    </directory>
+  </project>
+</phpunit>
