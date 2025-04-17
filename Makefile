@@ -3,7 +3,6 @@ test:
 
 test-coverage:
 	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-html=build/coverage
-	xdg-open build/coverage/index.html
 
 test-coverage-text:
 	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-text
