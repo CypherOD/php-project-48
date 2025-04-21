@@ -1,13 +1,13 @@
 <?php
 
-namespace Hexlet\Code\DifferTest;
+namespace Hexlet\Code\ComparatorTest;
 
 use PHPUnit\Framework\TestCase;
 
 use function Hexlet\Code\Differ\getDiff;
 use function Hexlet\Code\Differ\strValue;
 
-class DifferTest extends TestCase
+class ComparatorTest extends TestCase
 {
     public function getFixtureFullPath($fixtureName): false|string
     {
