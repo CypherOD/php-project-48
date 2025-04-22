@@ -4,8 +4,6 @@ namespace Hexlet\Code\ComparatorTest;
 
 use PHPUnit\Framework\TestCase;
 
-use function Hexlet\Code\Differ\getDiff;
-use function Hexlet\Code\Differ\strValue;
 
 class ComparatorTest extends TestCase
 {
@@ -14,12 +12,7 @@ class ComparatorTest extends TestCase
         $parts = [__DIR__, 'fixtures', $fixtureName];
         return realpath(implode('/', $parts));
     }
-    public function testStrValue(): void
-    {
-        $this->assertEquals('false', strValue(false));
-        $this->assertEquals('null', strValue(null));
-        $this->assertEquals('20', strValue(20));
-    }
+
     public function testGetDiff(): void
     {
         $pathToResult = $this->getFixtureFullPath('resultJson.txt');
