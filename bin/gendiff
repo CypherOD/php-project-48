@@ -27,7 +27,11 @@ DOC;
 
 $args = Docopt::handle($doc);
 
-echo var_dump($args);
-
-$result = getDiff($args['<firstFile>'], $args['<secondFile>'], $args['--format']);
-print_r($result[0]);
+try {
+    $result = getDiff($args['<firstFile>'], $args['<secondFile>'], $args['--format']);
+} catch (Exception $e) {
+    echo $e->getMessage() . PHP_EOL;
+}
+//
+//dump($result[0]);
+//dump($result[1]);

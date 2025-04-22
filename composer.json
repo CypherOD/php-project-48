@@ -11,7 +11,8 @@
         },
         "files": [
             "src/Comparator.php",
-            "src/FileReader.php"
+            "src/FileReader.php",
+            "src/Parsers.php"
         ]
     },
     "authors": [

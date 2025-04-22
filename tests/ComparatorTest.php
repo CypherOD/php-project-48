@@ -15,9 +15,9 @@ class ComparatorTest extends TestCase
 
     public function testGetDiff(): void
     {
-        $pathToResult = $this->getFixtureFullPath('resultJson.txt');
-        $pathToFile1 = $this->getFixtureFullPath('file1.json');
-        $pathToFile2 = $this->getFixtureFullPath('file2.json');
+        $pathToResult = $this->getFixtureFullPath('flatten_result_json_stylish.txt');
+        $pathToFile1 = $this->getFixtureFullPath('flatten_json_1.json');
+        $pathToFile2 = $this->getFixtureFullPath('flatten_json_2.json');
         $result = getDiff($pathToFile1, $pathToFile2);
 
         $this->assertStringEqualsFile($pathToResult, $result);

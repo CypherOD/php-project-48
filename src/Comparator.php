@@ -28,11 +28,11 @@ function parseFile(string $path): array
         echo $e->getMessage();
     }
 
-    if (!isset($pathInfo['extension'])) {
-        throw new RuntimeException("File has no extension");
-    }
+//    if (!isset($pathInfo['extension'])) {
+//        throw new RuntimeException("File has no extension");
+//    }
 
-    $ext = strtolower($pathInfo['extension']);
+    $ext = strtolower(pathinfo($path)['extension']);
 
     return match($ext) {
         'json' => parseJson($content),
