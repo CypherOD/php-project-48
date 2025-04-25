@@ -4,7 +4,6 @@ namespace Hexlet\Code\ComparatorTest;
 
 use PHPUnit\Framework\TestCase;
 
-
 class ComparatorTest extends TestCase
 {
     public function getFixtureFullPath($fixtureName): false|string
