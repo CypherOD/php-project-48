@@ -9,13 +9,22 @@ use RuntimeException;
 use function Hexlet\Code\FileReader\getFileContents;
 use function Hexlet\Code\Parsers\parseJson;
 use function Hexlet\Code\Parsers\parseYaml;
+use function Hexlet\Code\Formatters\formatedAsJson;
 
-function getDiff(string $path1, string $path2, string $format): array
+enum Operation: string
+{
+    case ADDED = '+ ';
+    case REMOVED = '- ';
+    case UNCHANGED = '  ';
+}
+
+function getDiff(string $path1, string $path2, string $format): string
 {
     $data1 = parseFile($path1);
     $data2 = parseFile($path2);
+    $result = compareTwoArrays($data1, $data2);
 
-    return [$data1, $data2];
+    return formatedAsJson($result);
 }
 
 /**
@@ -58,10 +67,24 @@ function parseFile(string $path): array
 
 function compareTwoArrays(array $arr1, array $arr2): array
 {
-
+    $sharedKeys = collect(array_keys(array_merge($arr1, $arr2)));
+        $result = $sharedKeys->sort()->reduce(fn ($acc, $key) => buildDiff($acc, $key, $arr1, $arr2), []);
+    return $result;
 }
 
-function valuesChanges()
+function buildDiff(array $acc, string $key, array $arr1, array $arr2): array
 {
-
+    if (array_key_exists($key, $arr1) && !array_key_exists($key, $arr2)) {
+        $acc[Operation::REMOVED->value . $key] = $arr1[$key];
+    } elseif (!array_key_exists($key, $arr1) && array_key_exists($key, $arr2)) {
+        $acc[Operation::ADDED->value . $key] = $arr2[$key];
+    } else {
+        if ($arr1[$key] !== $arr2[$key]) {
+            $acc[Operation::REMOVED->value . $key] = $arr1[$key];
+            $acc[Operation::ADDED->value . $key] = $arr2[$key];
+        } else {
+            $acc[Operation::UNCHANGED->value . $key] = $arr1[$key];
+        }
+    }
+    return $acc;
 }

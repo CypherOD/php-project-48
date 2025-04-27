@@ -12,7 +12,8 @@
         "files": [
             "src/Comparator.php",
             "src/FileReader.php",
-            "src/Parsers.php"
+            "src/Parsers.php",
+            "src/Formatters.php"
         ]
     },
     "authors": [
@@ -28,6 +29,7 @@
     },
     "require": {
         "docopt/docopt": "^1.0",
-        "symfony/yaml": "^7.2"
+        "symfony/yaml": "^7.2",
+        "illuminate/collections": "^12.10"
     }
 }

@@ -1,5 +1,9 @@
 <?php
 
+namespace Hexlet\Code\Formatters;
+
+use Symfony\Component\Yaml\Yaml;
+
 /**
  * Преобразует значение в строку с поддержкой всех типов данных.
  *
@@ -14,4 +18,14 @@ function strValue(mixed $value): string
         is_null($value) => 'null',
         default => (string)$value,
     };
+}
+
+function formatedAsJson(array $data): string
+{
+    return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+}
+
+function formattedAsYml(array $data): string
+{
+    return Yaml::dump($data, 20);
 }
