@@ -4,6 +4,9 @@ namespace Hexlet\Code\Formatters;
 
 use Symfony\Component\Yaml\Yaml;
 
+const INDENT = 4;
+
+
 /**
  * Преобразует значение в строку с поддержкой всех типов данных.
  *
@@ -28,4 +31,15 @@ function formatedAsJson(array $data): string
 function formattedAsYml(array $data): string
 {
     return Yaml::dump($data, 20);
+}
+
+function formatAsStylish(array $data): string
+{
+    $result = '{' . PHP_EOL;
+    $result .= array_reduce($data, function ($acc, $key) {
+        $acc .= str_repeat(' ', INDENT);
+    }, '');
+    $result .= '}';
+
+    return $result;
 }

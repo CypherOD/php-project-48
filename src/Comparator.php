@@ -88,3 +88,20 @@ function buildDiff(array $acc, string $key, array $arr1, array $arr2): array
     }
     return $acc;
 }
+
+//function buildDiff(array $acc, string $key, array $arr1, array $arr2): array
+//{
+//    if (array_key_exists($key, $arr1) && !array_key_exists($key, $arr2)) {
+//        return [
+//            'type' => 'removed',
+//            'key' => $key,
+//            'value' => $arr1[$key]
+//        ];
+//    } elseif (!array_key_exists($key, $arr1) && array_key_exists($key, $arr2)) {
+//        return [
+//            'type' => 'added',
+//            'key' => $key,
+//            'value' => $arr1[$key]
+//        ];
+//    }
+//}
