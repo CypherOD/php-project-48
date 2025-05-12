@@ -3,6 +3,8 @@
 namespace Hexlet\Code\ComparatorTest;
 
 use PHPUnit\Framework\TestCase;
+use function Hexlet\Code\Comparator\getDiff;
+
 
 class ComparatorTest extends TestCase
 {
@@ -12,11 +14,21 @@ class ComparatorTest extends TestCase
         return realpath(implode('/', $parts));
     }
 
-    public function testGetDiff(): void
+    public function testGetDiffFlatten(): void
     {
         $pathToResult = $this->getFixtureFullPath('flatten_result_json_stylish.txt');
         $pathToFile1 = $this->getFixtureFullPath('flatten_json_1.json');
         $pathToFile2 = $this->getFixtureFullPath('flatten_json_2.json');
+        $result = getDiff($pathToFile1, $pathToFile2);
+
+        $this->assertStringEqualsFile($pathToResult, $result);
+    }
+
+    public function testGetDiffNested(): void
+    {
+        $pathToResult = $this->getFixtureFullPath('nested_result_json_stylish.txt');
+        $pathToFile1 = $this->getFixtureFullPath('nested_json_1.json');
+        $pathToFile2 = $this->getFixtureFullPath('nested_json_2.json');
         $result = getDiff($pathToFile1, $pathToFile2);
 
         $this->assertStringEqualsFile($pathToResult, $result);
