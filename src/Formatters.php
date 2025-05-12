@@ -22,35 +22,35 @@ function strValue(mixed $value): string
     };
 }
 
-function toString($value)
-{
-    return trim(var_export($value, true), "'");
-}
+//function toString($value)
+//{
+//    return trim(var_export($value, true), "'");
+//}
 
 // BEGIN (write your solution here)
 // TODO - исправить отступы!
-function stringify($value, $replacer = ' ', $spacesCount = 4, $level = 0)
+function stringify($value, $replacer = ' ', $spacesCount = 4, $level = 1)
 {
     // Простые типы — просто возвращаем как строку
     if (!is_array($value)) {
-        return toString($value);
+        return strValue($value);
     }
 
     // Если массив
     $isAssoc = array_keys($value) !== range(0, count($value) - 1);
-    $indent = str_repeat($replacer, $spacesCount * $level);
-    $nextIndent = str_repeat($replacer, $spacesCount * ($level + 1));
-
+    $indentSize = $level * $spacesCount;
+    $currentIndent = str_repeat($replacer, ($indentSize - 2));
+    $bracketIndent = str_repeat($replacer, $indentSize - $spacesCount);
     $lines = ['{'];
     foreach ($value as $key => $val) {
-        $line = $nextIndent;
+        $line = $currentIndent;
         if ($isAssoc) {
             $line .= $key . ': ';
         }
-        $line .= is_array($val) ? stringify($val, $replacer, $spacesCount, $level + 1) : toString($val);
+        $line .= is_array($val) ? stringify($val, $replacer, $spacesCount, $level + 1) : strValue($val);
         $lines[] = $line;
     }
-    $lines[] = $indent . '}';
+    $lines[] = $bracketIndent . '}';
     return implode("\n", $lines);
 }
 
