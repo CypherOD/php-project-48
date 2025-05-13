@@ -3,9 +3,6 @@
 namespace Hexlet\Code\Formatters;
 use Symfony\Component\Yaml\Yaml;
 
-const INDENT = 2;
-
-
 /**
  * Преобразует значение в строку с поддержкой всех типов данных.
  *
@@ -14,7 +11,6 @@ const INDENT = 2;
  */
 function strValue(mixed $value): string
 {
-    // TODO: Изменить функцию под stylish
     return match (true) {
         is_bool($value) => $value ? 'true' : 'false',
         is_null($value) => 'null',
@@ -27,30 +23,26 @@ function strValue(mixed $value): string
 //    return trim(var_export($value, true), "'");
 //}
 
-// BEGIN (write your solution here)
-// TODO - исправить отступы!
 function stringify($value, $replacer = ' ', $spacesCount = 4, $level = 1)
 {
-    // Простые типы — просто возвращаем как строку
     if (!is_array($value)) {
         return strValue($value);
     }
 
-    // Если массив
-    $isAssoc = array_keys($value) !== range(0, count($value) - 1);
-    $indentSize = $level * $spacesCount;
-    $currentIndent = str_repeat($replacer, ($indentSize - 2));
-    $bracketIndent = str_repeat($replacer, $indentSize - $spacesCount);
+
     $lines = ['{'];
+
+    $indent = str_repeat($replacer, ($spacesCount * $level - 2));
+
     foreach ($value as $key => $val) {
-        $line = $currentIndent;
-        if ($isAssoc) {
+        $line = $indent;
+        if (is_array($value)) {
             $line .= $key . ': ';
         }
         $line .= is_array($val) ? stringify($val, $replacer, $spacesCount, $level + 1) : strValue($val);
         $lines[] = $line;
     }
-    $lines[] = $bracketIndent . '}';
+    $lines[] = $indent  . '}';
     return implode("\n", $lines);
 }
 

@@ -2,14 +2,11 @@
 
 namespace Hexlet\Code\Comparator;
 
-use Exception;
-use JsonException;
 use RuntimeException;
 
 use function Hexlet\Code\FileReader\getFileContents;
 use function Hexlet\Code\Parsers\parseJson;
 use function Hexlet\Code\Parsers\parseYaml;
-use function Hexlet\Code\Formatters\formatedAsJson;
 use function Hexlet\Code\Formatters\formatAsStylish;
 
 enum Operation: string
@@ -17,6 +14,7 @@ enum Operation: string
     case ADDED = '+ ';
     case REMOVED = '- ';
     case UNCHANGED = '  ';
+    case NESTED = '';
 }
 
 /**
@@ -122,7 +120,8 @@ function buildDiff(array $acc, string $key, array $data1, array $data2): array
     } elseif (!$has1 && $has2) {
         $acc[Operation::ADDED->value . $key] = $val2;
     } elseif (is_array($val1) && is_array($val2)) {
-        $acc[Operation::UNCHANGED->value . $key] = compareTwoArrays($val1, $val2);
+        $acc[$key] = compareTwoArrays($val1, $val2);
+        // $acc[Operation::UNCHANGED->value . $key] = compareTwoArrays($val1, $val2);
     } elseif ($val1 !== $val2) {
         $acc[Operation::REMOVED->value . $key] = $val1;
         $acc[Operation::ADDED->value . $key] = $val2;
