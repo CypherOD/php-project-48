@@ -1,6 +1,7 @@
 <?php
 
 namespace Hexlet\Code\Formatters;
+
 use Symfony\Component\Yaml\Yaml;
 
 /**

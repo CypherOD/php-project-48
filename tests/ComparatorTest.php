@@ -3,8 +3,8 @@
 namespace Hexlet\Code\ComparatorTest;
 
 use PHPUnit\Framework\TestCase;
-use function Hexlet\Code\Comparator\getDiff;
 
+use function Hexlet\Code\Comparator\getDiff;
 
 class ComparatorTest extends TestCase
 {
