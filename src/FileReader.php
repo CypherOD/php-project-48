@@ -1,6 +1,6 @@
 <?php
 
-namespace Hexlet\Code\FileReader;
+namespace Differ\FileReader;
 
 use RuntimeException;
 
