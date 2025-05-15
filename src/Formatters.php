@@ -20,6 +20,7 @@ function strValue(mixed $value): string
     return match (true) {
         is_bool($value) => $value ? 'true' : 'false',
         is_null($value) => 'null',
+        is_array($value) => implode("\n", $value),
         default => (string) $value,
     };
 }
@@ -38,25 +39,32 @@ function stringify(mixed $value, string $replacer = ' ', int $spacesCount = 4, i
     if (!is_array($value)) {
         return strValue($value);
     }
-    $currentIndent = str_repeat(' ', $spacesCount * $depth - 2);
-    $bracketIndent = str_repeat(' ', $spacesCount * ($depth - 1));
+    $currentIndent = str_repeat($replacer, $spacesCount * $depth - 2);
+    $bracketIndent = str_repeat($replacer, $spacesCount * $depth - 4);
 
     $lines = array_reduce($value, function ($acc, $item) use ($currentIndent, $replacer, $spacesCount, $depth) {
         $status = $item['status'];
 
+
+
         switch ($status) {
             case (Status::REMOVE->value):
-                $acc[] = "-{$currentIndent}{$item['key']}: {$item['value']}";
+                $acc[] = "{$currentIndent}- {$item['key']}: " . strValue($item['value']);
                 break;
             case (Status::ADDED->value):
-                $acc[] = "+{$currentIndent}{$item['key']}: {$item['value']}";
+                $acc[] = "{$currentIndent}+ {$item['key']}: " . strValue($item['value']);
                 break;
             case (Status::NESTED->value):
-                $nestedValue = stringify($item, $replacer, $spacesCount, $depth + 1);
-                $acc[] = "{$currentIndent}{$item['key']}: {$nestedValue}";
+                $nestedValue = stringify($item['value'], $replacer, $spacesCount, $depth + 1);
+                $acc[] = "{$currentIndent}{$item['key']}: " . $nestedValue;
                 break;
             case (Status::UPDATED->value):
-
+                $acc[] = "{$currentIndent}- {$item['key']}: " . strValue($item['value1']);
+                $acc[] = "{$currentIndent}+ {$item['key']}: " . strValue($item['value2']);
+                break;
+            case (Status::UNCHANGED->value):
+                $acc[] = "{$currentIndent}  {$item['key']}: " . strValue($item['value']);
+                break;
         }
 
         return $acc;
