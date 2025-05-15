@@ -2,35 +2,23 @@
 
 namespace Differ\Differ;
 
-use RuntimeException;
+use Differ\enums\Status;
 
 use function Differ\Parsers\parseFile;
 use function Differ\Formatters\formatOutput;
 
 /**
- * Перечисление возможных статусов различий между значениями.
- */
-enum Status: string
-{
-    case ADD = 'add';
-    case REMOVE = 'remove';
-    case UNCHANGED = 'unchanged';
-    case NESTED = 'nested';
-    case UPDATED = 'updated';
-}
-
-/**
- * Сравнивает содержимое двух файлов и возвращает различия в указанном формате.
+ * Генерирует различия между двумя файлами и возвращает результат в заданном формате.
  *
  * @param string $path1 Путь к первому файлу.
  * @param string $path2 Путь ко второму файлу.
  * @param string $format Формат вывода (по умолчанию 'stylish').
+ *                      Допустимые значения: 'stylish', 'plain', 'json'.
  *
- * @return string|array Возвращает строку в заданном формате или массив различий.
- *
- * @throws RuntimeException В случае ошибки при чтении или парсинге файлов.
+ * @return string Форматированный результат различий.
  */
-function getDiff(string $path1, string $path2, string $format = 'stylish'): string | array
+
+function getDiff(string $path1, string $path2, string $format = 'stylish'): string
 {
     $data1 = parseFile($path1);
     $data2 = parseFile($path2);
@@ -38,14 +26,12 @@ function getDiff(string $path1, string $path2, string $format = 'stylish'): stri
     return formatOutput($result, $format);
 }
 
-
-
 /**
  * Проверяет, является ли массив ассоциативным.
  *
  * @param array $arr Входной массив.
  *
- * @return bool Возвращает true, если массив ассоциативный.
+ * @return bool true, если массив ассоциативный, иначе false.
  */
 function isAssoc(array $arr): bool
 {
@@ -53,12 +39,15 @@ function isAssoc(array $arr): bool
 }
 
 /**
- * Рекурсивно сравнивает два ассоциативных массива и строит diff-массив.
+ * Рекурсивно сравнивает два ассоциативных массива и возвращает массив различий.
  *
  * @param array $arr1 Первый массив.
  * @param array $arr2 Второй массив.
  *
- * @return array Массив различий, отсортированный по ключам.
+ * @return array Массив различий, где каждый элемент — это ассоциативный массив с ключами:
+ *               - key (string)
+ *               - status (string)
+ *               - value (mixed) или oldValue/newValue (если статус 'updated')
  */
 function compareTwoArrays(array $arr1, array $arr2): array
 {
@@ -69,70 +58,57 @@ function compareTwoArrays(array $arr1, array $arr2): array
 }
 
 /**
- * Определяет тип различия между значениями по ключу.
+ * Строит одну строку различий по ключу между двумя массивами.
  *
- * @param mixed $val1 Значение из первого массива.
- * @param mixed $val2 Значение из второго массива.
- * @param bool $has1 Присутствует ли ключ в первом массиве.
- * @param bool $has2 Присутствует ли ключ во втором массиве.
+ * @param array  $acc   Аккумулирующий массив различий.
+ * @param string $key   Текущий ключ, сравниваемый в обоих массивах.
+ * @param array  $data1 Первый массив.
+ * @param array  $data2 Второй массив.
  *
- * @return Status Статус (добавлен, удалён, вложенный, неизменён, обновлён).
- */
-function getNodeStatus(mixed $val1, mixed $val2, bool $has1, bool $has2): Status
-{
-    return match (true) {
-        $has1 && !$has2 => Status::REMOVE,
-        !$has1 && $has2 => Status::ADD,
-        is_array($val1) && is_array($val2) && isAssoc($val1) && isAssoc($val2) => Status::NESTED,
-        $val1 === $val2 => Status::UNCHANGED,
-        default => Status::UPDATED,
-    };
-}
-
-/**
- * Формирует строку/пару diff'а по ключу и статусу.
- *
- * @param string $key Ключ, по которому сравниваются значения.
- * @param Status $status Статус различия.
- * @param mixed $val1 Значение из первого массива.
- * @param mixed $val2 Значение из второго массива.
- *
- * @return array Один или два элемента с префиксами ключей и значениями различий.
- */
-function buildNodeDiffLine(string $key, Status $status, mixed $val1, mixed $val2): array
-{
-    return match ($status) {
-        Status::REMOVE => [Status::REMOVE->value . ' ' . $key => $val1],
-        Status::ADD => [Status::ADD->value . ' ' . $key => $val2],
-        Status::UNCHANGED => [Status::UNCHANGED->value . ' ' . $key => $val1],
-        Status::UPDATED => [
-            Status::REMOVE->value . ' ' . $key => $val1,
-            Status::ADD->value . ' ' . $key => $val2,
-        ],
-        Status::NESTED => [Status::NESTED->value . ' ' . $key => compareTwoArrays($val1, $val2)],
-    };
-}
-
-/**
- * Добавляет строку различий по ключу в аккумулятор результата.
- *
- * @param array $acc Аккумулятор для результата.
- * @param string $key Ключ, по которому происходит сравнение.
- * @param array $data1 Первый массив.
- * @param array $data2 Второй массив.
- *
- * @return array Обновлённый аккумулятор с добавленным diff-элементом.
+ * @return array Обновлённый аккумулятор различий с добавленным элементом.
  */
 function buildDiffLine(array $acc, string $key, array $data1, array $data2): array
 {
-    $has1 = array_key_exists($key, $data1);
-    $has2 = array_key_exists($key, $data2);
 
     $val1 = $data1[$key] ?? null;
     $val2 = $data2[$key] ?? null;
 
-    $status = getNodeStatus($val1, $val2, $has1, $has2);
-    $line = buildNodeDiffLine($key, $status, $val1, $val2);
+    $has1 = array_key_exists($key, $data1);
+    $has2 = array_key_exists($key, $data2);
 
-    return array_merge($acc, $line);
+
+    if ($has1 && !$has2) {
+        $acc[] = [
+            'key' => $key,
+            'value' => $val1,
+            'status' => Status::REMOVE->value,
+        ];
+    } elseif (!$has1 && $has2) {
+        $acc[] = [
+            'key' => $key,
+            'value' => $val2,
+            'status' => Status::ADDED->value,
+        ];
+    } elseif (is_array($val1) && is_array($val2) && isAssoc($val1) && isAssoc($val2)) {
+        $acc[] = [
+            'key' => $key,
+            'value' => compareTwoArrays($val1, $val2),
+            'status' => Status::NESTED->value,
+        ];
+    } elseif ($val1 !== $val2) {
+        $acc[] = [
+            'key' => $key,
+            'value1' => $val1,
+            'value2' => $val2,
+            'status' => Status::UPDATED->value,
+        ];
+    } else {
+        $acc[] = [
+            'key' => $key,
+            'value' => $val1,
+            'status' => Status::UNCHANGED->value,
+        ];
+    }
+
+    return $acc;
 }

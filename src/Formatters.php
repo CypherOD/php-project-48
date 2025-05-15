@@ -2,6 +2,7 @@
 
 namespace Differ\Formatters;
 
+use Differ\enums\Status;
 use InvalidArgumentException;
 
 /**
@@ -24,28 +25,6 @@ function strValue(mixed $value): string
 }
 
 /**
- * Заменяет статусный префикс ключа (add/remove/unchanged/nested) на символ (+/-/ )
- *
- * @param string $key Ключ с префиксом.
- * @return string Ключ с заменённым префиксом.
- */
-function convertStatusPrefix(string $key): string
-{
-    return preg_replace_callback(
-        '/^(add|remove|unchanged|nested)\s+/i',
-        function ($matches) {
-            return match ($matches[1]) {
-                'add' => '+ ',
-                'remove' => '- ',
-                'unchanged' => '  ',
-                default => '',
-            };
-        },
-        $key
-    );
-}
-
-/**
  * Рекурсивно форматирует ассоциативный массив в стиле "stylish".
  *
  * @param mixed $value Значение (массив или примитив).
@@ -54,22 +33,36 @@ function convertStatusPrefix(string $key): string
  * @param int $level Текущий уровень вложенности.
  * @return string Отформатированная строка.
  */
-function stringify(array $value, string $replacer = ' ', int $spacesCount = 4, int $level = 1): string
+function stringify(mixed $value, string $replacer = ' ', int $spacesCount = 4, int $depth = 1): string
 {
     if (!is_array($value)) {
         return strValue($value);
     }
-    $indent = str_repeat($replacer, ($spacesCount * $level - 2));
-    $bracketIndent = str_repeat($replacer, $spacesCount * ($level - 1));
-    $lines = ['{'];
-    foreach ($value as $key => $val) {
-        $line = $indent;
+    $currentIndent = str_repeat(' ', $spacesCount * $depth - 2);
+    $bracketIndent = str_repeat(' ', $spacesCount * ($depth - 1));
 
-        $line .= convertStatusPrefix($key) . ': ';
-        $line .= is_array($val) ? stringify($val, $replacer, $spacesCount, $level + 1) : strValue($val);
-        $lines[] = $line;
-    }
-    $lines[] = $bracketIndent  . '}';
+    $lines = array_reduce($value, function ($acc, $item) use ($currentIndent, $replacer, $spacesCount, $depth) {
+        $status = $item['status'];
+
+        switch ($status) {
+            case (Status::REMOVE->value):
+                $acc[] = "-{$currentIndent}{$item['key']}: {$item['value']}";
+                break;
+            case (Status::ADDED->value):
+                $acc[] = "+{$currentIndent}{$item['key']}: {$item['value']}";
+                break;
+            case (Status::NESTED->value):
+                $nestedValue = stringify($item, $replacer, $spacesCount, $depth + 1);
+                $acc[] = "{$currentIndent}{$item['key']}: {$nestedValue}";
+                break;
+            case (Status::UPDATED->value):
+
+        }
+
+        return $acc;
+    }, ['{']);
+
+    $lines[] = "{$bracketIndent}}";
     return implode("\n", $lines);
 }
 
