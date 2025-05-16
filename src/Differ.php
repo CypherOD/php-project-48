@@ -23,6 +23,7 @@ function getDiff(string $path1, string $path2, string $format = 'stylish'): stri
     $data1 = parseFile($path1);
     $data2 = parseFile($path2);
     $result = compareTwoArrays($data1, $data2);
+    dump($result);
     return formatOutput($result, $format);
 }
 

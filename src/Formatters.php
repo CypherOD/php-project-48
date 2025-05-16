@@ -4,6 +4,7 @@ namespace Differ\Formatters;
 
 use Differ\enums\Status;
 use InvalidArgumentException;
+use function Differ\Differ\isAssoc;
 
 /**
  * Преобразует значение в строку для вывода.
@@ -20,7 +21,7 @@ function strValue(mixed $value): string
     return match (true) {
         is_bool($value) => $value ? 'true' : 'false',
         is_null($value) => 'null',
-        is_array($value) => implode("\n", $value),
+        is_array($value) => 'Array',
         default => (string) $value,
     };
 }
@@ -31,7 +32,7 @@ function strValue(mixed $value): string
  * @param mixed $value Значение (массив или примитив).
  * @param string $replacer Символ отступа.
  * @param int $spacesCount Количество пробелов в отступе.
- * @param int $level Текущий уровень вложенности.
+ * @param int $depth Текущий уровень вложенности.
  * @return string Отформатированная строка.
  */
 function stringify(mixed $value, string $replacer = ' ', int $spacesCount = 4, int $depth = 1): string
@@ -44,9 +45,6 @@ function stringify(mixed $value, string $replacer = ' ', int $spacesCount = 4, i
 
     $lines = array_reduce($value, function ($acc, $item) use ($currentIndent, $replacer, $spacesCount, $depth) {
         $status = $item['status'];
-
-
-
         switch ($status) {
             case (Status::REMOVE->value):
                 $acc[] = "{$currentIndent}- {$item['key']}: " . strValue($item['value']);
