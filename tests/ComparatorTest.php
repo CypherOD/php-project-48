@@ -2,6 +2,7 @@
 
 namespace Differ\ComparatorTest;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function Differ\DIffer\getDiff;
@@ -13,13 +14,23 @@ class ComparatorTest extends TestCase
         $parts = [__DIR__, 'fixtures', $fixtureName];
         return realpath(implode('/', $parts));
     }
-    public function testGetDiffNested(): void
-    {
-        $pathToResult = $this->getFixtureFullPath('nested_result_json_stylish.txt');
-        $pathToFile1 = $this->getFixtureFullPath('nested1.json');
-        $pathToFile2 = $this->getFixtureFullPath('nested2.json');
-        $result = getDiff($pathToFile1, $pathToFile2);
 
+    #[DataProvider('getDiffProvider')]
+    public function testGetDiff(string $result, string $file1, string $file2): void
+    {
+        $pathToResult = $this->getFixtureFullPath($result);
+        $pathToFile1 = $this->getFixtureFullPath($file1);
+        $pathToFile2 = $this->getFixtureFullPath($file2);
+        $result = getDiff($pathToFile1, $pathToFile2);
         $this->assertStringEqualsFile($pathToResult, $result);
+    }
+
+    public static function getDiffProvider(): array
+    {
+        return [
+            'json' => ['nested_result_stylish.txt', 'nested1.json', 'nested2.json'],
+            'yml' => ['nested_result_stylish.txt', 'nested1.yml', 'nested2.yml'],
+            'mixed' => ['nested_result_stylish.txt', 'nested1.yml', 'nested2.json'],
+        ];
     }
 }
