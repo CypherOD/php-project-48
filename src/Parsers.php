@@ -2,6 +2,8 @@
 
 namespace Differ\Parsers;
 
+use JsonException;
+use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 
 use function Differ\FileReader\getFileContents;
@@ -12,7 +14,7 @@ use function Differ\FileReader\getFileContents;
  * @param string $data Строка в формате JSON.
  * @return array Результирующий ассоциативный массив.
  *
- * @throws \JsonException Если JSON содержит синтаксическую ошибку.
+ * @throws JsonException Если JSON содержит синтаксическую ошибку.
  */
 function parseJson(string $data): array
 {
@@ -41,7 +43,7 @@ function parseYaml(string $data): array
  *
  * @return array Ассоциативный массив содержимого файла.
  *
- * @throws RuntimeException В случае отсутствия расширения или неподдерживаемого формата.
+ * @throws RuntimeException|JsonException В случае отсутствия расширения или неподдерживаемого формата.
  */
 function parseFile(string $path): array
 {
