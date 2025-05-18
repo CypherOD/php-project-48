@@ -3,8 +3,6 @@
 namespace Differ\Formatters;
 
 use Differ\enums\Status;
-use InvalidArgumentException;
-use function Differ\Differ\isAssoc;
 
 function strValue(mixed $value, string $replacer = ' ', int $spacesCount = 4, int $depth = 1): string
 {
