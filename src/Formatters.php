@@ -6,107 +6,78 @@ use Differ\enums\Status;
 use InvalidArgumentException;
 use function Differ\Differ\isAssoc;
 
-/**
- * Преобразует значение в строку для вывода.
- *
- * - Булевы значения переводятся в 'true' / 'false'
- * - null в 'null'
- * - Все остальные приводятся к строке
- *
- * @param mixed $value Значение для преобразования.
- * @return string Строковое представление значения.
- */
-function strValue(mixed $value): string
+function strValue(mixed $value, string $replacer = ' ', int $spacesCount = 4, int $depth = 1): string
 {
     return match (true) {
         is_bool($value) => $value ? 'true' : 'false',
         is_null($value) => 'null',
-        is_array($value) => implode(', ', $value),
+        is_array($value) => stringifyPlainArray($value, $replacer, $spacesCount, $depth + 1),
         default => (string) $value,
     };
 }
 
-/**
- * Рекурсивно форматирует ассоциативный массив в стиле "stylish".
- *
- * @param mixed $value Значение (массив или примитив).
- * @param string $replacer Символ отступа.
- * @param int $spacesCount Количество пробелов в отступе.
- * @param int $depth Текущий уровень вложенности.
- * @return string Отформатированная строка.
- */
-function stringify(mixed $value, string $replacer = ' ', int $spacesCount = 4, int $depth = 1): string
+function stringifyPlainArray(array $value, string $replacer, int $spacesCount, int $depth): string
 {
-    if (!is_array($value)) {
-        return strValue($value);
+    $currentIndent = str_repeat($replacer, $spacesCount * $depth);
+    $bracketIndent = str_repeat($replacer, $spacesCount * ($depth - 1));
+    $lines = ['{'];
+
+    foreach ($value as $key => $val) {
+        $stringValue = strValue($val, $replacer, $spacesCount, $depth);
+        $lines[] = "{$currentIndent}{$key}: {$stringValue}";
     }
-    $currentIndent = str_repeat($replacer, $spacesCount * $depth - 2);
-    $bracketIndent = str_repeat($replacer, $spacesCount * $depth - 4);
-
-    $lines = array_reduce($value, function ($acc, $item) use ($currentIndent, $replacer, $spacesCount, $depth) {
-        $status = $item['status'];
-        switch ($status) {
-            case (Status::REMOVE->value):
-                $acc[] = "{$currentIndent}- {$item['key']}: " . strValue($item['value']);
-                break;
-            case (Status::ADDED->value):
-                $acc[] = "{$currentIndent}+ {$item['key']}: " . strValue($item['value']);
-                break;
-            case (Status::NESTED->value):
-                $nestedValue = stringify($item['value'], $replacer, $spacesCount, $depth + 1);
-                $acc[] = "{$currentIndent}{$item['key']}: " . $nestedValue;
-                break;
-            case (Status::UPDATED->value):
-                $acc[] = "{$currentIndent}- {$item['key']}: " . strValue($item['value1']);
-                $acc[] = "{$currentIndent}+ {$item['key']}: " . strValue($item['value2']);
-                break;
-            case (Status::UNCHANGED->value):
-                $acc[] = "{$currentIndent}  {$item['key']}: " . strValue($item['value']);
-                break;
-        }
-
-        return $acc;
-    }, ['{']);
 
     $lines[] = "{$bracketIndent}}";
     return implode("\n", $lines);
 }
 
-/**
- * Преобразует массив различий в форматированный JSON.
- *
- * @param array $data Ассоциативный массив различий.
- * @return string Отформатированный JSON.
- */
+function stringify(array $value, string $replacer = ' ', int $spacesCount = 4, int $depth = 1): string
+{
+    $currentIndent = str_repeat($replacer, $spacesCount * $depth - 2);
+    $bracketIndent = str_repeat($replacer, $spacesCount * ($depth - 1));
+
+    $lines = ['{'];
+
+    foreach ($value as $node) {
+        $key = $node['key'];
+        $status = $node['status'];
+
+        $lines[] = match ($status) {
+            Status::NESTED->value =>
+                "{$currentIndent}  {$key}: " . stringify($node['value'], $replacer, $spacesCount, $depth + 1),
+
+            Status::ADDED->value =>
+                "{$currentIndent}+ {$key}: " . strValue($node['value'], $replacer, $spacesCount, $depth),
+
+            Status::REMOVE->value =>
+                "{$currentIndent}- {$key}: " . strValue($node['value'], $replacer, $spacesCount, $depth),
+
+            Status::UNCHANGED->value =>
+                "{$currentIndent}  {$key}: " . strValue($node['value'], $replacer, $spacesCount, $depth),
+
+            Status::UPDATED->value => implode("\n", [
+                "{$currentIndent}- {$key}: " . strValue($node['value1'], $replacer, $spacesCount, $depth),
+                "{$currentIndent}+ {$key}: " . strValue($node['value2'], $replacer, $spacesCount, $depth),
+            ]),
+
+            default => throw new \Exception("Неизвестный статус: {$status}"),
+        };
+    }
+
+    $lines[] = "{$bracketIndent}}";
+    return implode("\n", $lines);
+}
+
 function formatedAsJson(array $data): string
 {
     return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 }
 
-/**
- * Форматирует массив различий в виде "stylish".
- *
- * @param mixed $value Значение для форматирования.
- * @return string Строковое представление в стиле stylish.
- */
 function formatAsStylish(array $value): string
 {
     return stringify($value);
 }
 
-/**
- * Форматирует результат сравнения в указанный формат.
- *
- * Поддерживаемые форматы:
- * - 'json' — вывод в формате JSON
- * - 'stylish' — человекочитаемый стиль (по умолчанию)
- *
- * @param array $data Массив различий, полученный после сравнения данных.
- * @param string $format Формат вывода ('json' или 'stylish').
- * @return string Отформатированная строка.
- *
- * @throws InvalidArgumentException Если передан неподдерживаемый формат.
- */
 function formatOutput(array $data, string $format): string
 {
     return match ($format) {
