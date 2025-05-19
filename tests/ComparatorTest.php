@@ -1,6 +1,6 @@
 <?php
 
-namespace Differ\ComparatorTest;
+namespace ComparatorTest;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

@@ -8,3 +8,5 @@
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=php-project-48&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=php-project-48)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=php-project-48&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=php-project-48)
 
+## Рекурсивное сравнение
+[![asciicast](https://asciinema.org/a/M5kRht39FKYV6LoFjISj92MKx.svg)](https://asciinema.org/a/M5kRht39FKYV6LoFjISj92MKx)
