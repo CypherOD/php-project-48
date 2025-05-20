@@ -3,6 +3,7 @@
 namespace Differ\Formatters;
 
 use Differ\enums\Status;
+use function Differ\Differ\isAssoc;
 
 function strValue(mixed $value, string $replacer = ' ', int $spacesCount = 4, int $depth = 1): string
 {
@@ -76,11 +77,52 @@ function formatAsStylish(array $value): string
     return stringify($value);
 }
 
+
+function toString(mixed $value): string
+{
+    return match (true) {
+        is_array($value) => '[complex]',
+        default => (string) $value,
+    };
+}
+
+function formatAsPlain(mixed $value): string
+{
+    $lines = [];
+    foreach ($value as $node) {
+        $status = $node['status'];
+
+
+
+        $lines[] = match ($status) {
+            Status::NESTED->value =>
+                "nested" .  formatAsPlain($node['value']),
+
+            Status::ADDED->value =>
+                'added' . toString($node['value']),
+
+            Status::REMOVE->value =>
+                'added' . toString($node['value']),
+
+            Status::UNCHANGED->value =>
+                'added' . toString($node['value']),
+
+            Status::UPDATED->value => implode("\n", [
+                '1',
+                '2'
+            ]),
+        };
+    };
+
+    return implode("\n", $lines);
+}
+
 function formatOutput(array $data, string $format): string
 {
     return match ($format) {
         'json' => formatedAsJson($data),
         'stylish' => formatAsStylish($data),
+        'plain' => formatAsPlain($data),
         default => throw new \InvalidArgumentException("Неизвестный формат: $format"),
     };
 }
