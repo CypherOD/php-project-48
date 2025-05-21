@@ -96,20 +96,20 @@ function formatAsPlain(mixed $value): string
 
         $lines[] = match ($status) {
             Status::NESTED->value =>
-                "nested" .  formatAsPlain($node['value']),
+                "nested " .  formatAsPlain($node['value']),
 
             Status::ADDED->value =>
-                'added' . toString($node['value']),
+                'added ' . toString($node['value']),
 
             Status::REMOVE->value =>
-                'added' . toString($node['value']),
+                'remove ' . toString($node['value']),
 
             Status::UNCHANGED->value =>
-                'added' . toString($node['value']),
+                'unchanged ' . toString($node['value']),
 
             Status::UPDATED->value => implode("\n", [
-                '1',
-                '2'
+                'added ' . toString($node['value1']),
+                'remove ' . toString($node['value2'])
             ]),
         };
     };
