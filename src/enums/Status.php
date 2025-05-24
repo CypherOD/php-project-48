@@ -8,7 +8,7 @@ namespace Differ\enums;
 enum Status: string
 {
     case ADDED = 'added';
-    case REMOVE = 'remove';
+    case REMOVED = 'removed';
     case UNCHANGED = 'unchanged';
     case NESTED = 'nested';
     case UPDATED = 'updated';

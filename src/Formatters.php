@@ -3,6 +3,7 @@
 namespace Differ\Formatters;
 
 use Differ\enums\Status;
+
 use function Differ\Differ\isAssoc;
 
 function strValue(mixed $value, string $replacer = ' ', int $spacesCount = 4, int $depth = 1): string
@@ -48,7 +49,7 @@ function stringify(array $value, string $replacer = ' ', int $spacesCount = 4, i
             Status::ADDED->value =>
                 "{$currentIndent}+ {$key}: " . strValue($node['value'], $replacer, $spacesCount, $depth),
 
-            Status::REMOVE->value =>
+            Status::REMOVED->value =>
                 "{$currentIndent}- {$key}: " . strValue($node['value'], $replacer, $spacesCount, $depth),
 
             Status::UNCHANGED->value =>
@@ -86,32 +87,50 @@ function toString(mixed $value): string
     };
 }
 
-function formatAsPlain(mixed $value): string
+function formatAsPlain(mixed $value, array $path = []): string
 {
     $lines = [];
     foreach ($value as $node) {
         $status = $node['status'];
+        $path[] = $node['key'];
 
 
+        // $lines[] = match ($status) {
+        //     Status::NESTED->value =>
+        //         formatAsPlain($node['value'], $path),
 
-        $lines[] = match ($status) {
-            Status::NESTED->value =>
-                "nested " .  formatAsPlain($node['value']),
+        //     Status::ADDED->value =>
+        //         //'Propery ' .  implode('.', $path) . ' added ' . toString($node['value']),
+        //         "Property '{implode('.', $path)}' was added with value: false"
 
-            Status::ADDED->value =>
-                'added ' . toString($node['value']),
+        //     Status::REMOVE->value =>
+        //         'Propery remove ' . toString($node['value']),
 
-            Status::REMOVE->value =>
-                'remove ' . toString($node['value']),
+        //     Status::UNCHANGED->value =>
+        //         'Propery unchanged ' . toString($node['value']),
 
-            Status::UNCHANGED->value =>
-                'unchanged ' . toString($node['value']),
-
-            Status::UPDATED->value => implode("\n", [
-                'added ' . toString($node['value1']),
-                'remove ' . toString($node['value2'])
-            ]),
-        };
+        //     Status::UPDATED->value => implode("\n", [
+        //         'Propery added ' . toString($node['value1']),
+        //         'Propery remove ' . toString($node['value2'])
+        //     ]),
+        // };
+        $lines = [];
+        switch($status) {
+            case Status::NESTED->value:
+                $lines[] = formatAsPlain($node['value'], $path);
+                break;
+            case Status::ADDED->value:
+                $strPath = implode('.', $path);
+                $lines[] = "Property '$strPath' was added with value: {$value['value']}";
+                break;
+            case Status::REMOVED->value:
+                $lines[] = "Property '$strPath' was removed";
+                break;
+            case Status::UPDATED->value:
+                break;
+            default:
+                break;
+        }
     };
 
     return implode("\n", $lines);
