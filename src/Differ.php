@@ -81,7 +81,7 @@ function buildDiffLine(array $acc, string $key, array $data1, array $data2): arr
         $acc[] = [
             'key' => $key,
             'value' => $val1,
-            'status' => Status::REMOVE->value,
+            'status' => Status::REMOVED->value,
         ];
     } elseif (!$has1 && $has2) {
         $acc[] = [

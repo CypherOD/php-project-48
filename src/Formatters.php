@@ -4,26 +4,69 @@ namespace Differ\Formatters;
 
 use Differ\enums\Status;
 
-use function Differ\Differ\isAssoc;
+/**
+ * Преобразует значение в строку в зависимости от заданного формата.
+ *
+ * @param mixed  $value        Значение для форматирования.
+ * @param string $format       Формат вывода ('plain' или 'stylish').
+ * @param string $replacer     Строка для отступов (обычно пробел).
+ * @param int    $spacesCount  Количество пробелов в одном уровне отступа.
+ * @param int    $depth        Текущий уровень вложенности.
+ *
+ * @return string Строковое представление значения.
+ *
+ * @throws \Exception Если формат не поддерживается.
+ */
 
-function strValue(mixed $value, string $replacer = ' ', int $spacesCount = 4, int $depth = 1): string
-{
-    return match (true) {
-        is_bool($value) => $value ? 'true' : 'false',
-        is_null($value) => 'null',
-        is_array($value) => stringifyPlainArray($value, $replacer, $spacesCount, $depth + 1),
-        default => (string) $value,
+function stringifyValue(
+    mixed $value,
+    string $format = 'plain',
+    string $replacer = ' ',
+    int $spacesCount = 4,
+    int $depth = 1
+): string {
+    if (is_bool($value)) {
+        return $value ? 'true' : 'false';
+    }
+
+    if (is_null($value)) {
+        return 'null';
+    }
+
+    if (is_array($value)) {
+        return match ($format) {
+            'plain' => '[complex value]',
+            'stylish' => stringifyStylishArray($value, $replacer, $spacesCount, $depth + 1),
+            default => throw new \Exception("Формат {$format} не поддерживается для массивов"),
+        };
+    }
+
+    return match ($format) {
+        'plain' => "'{$value}'",
+        'stylish' => (string) $value,
+        default => throw new \Exception("Формат {$format} не поддерживается для скаляров"),
     };
 }
 
-function stringifyPlainArray(array $value, string $replacer, int $spacesCount, int $depth): string
+/**
+ * Преобразует ассоциативный массив в форматированную строку для "stylish"-вывода.
+ *
+ * @param array  $value        Вложенный массив.
+ * @param string $replacer     Строка для отступов.
+ * @param int    $spacesCount  Количество пробелов в одном уровне отступа.
+ * @param int    $depth        Текущий уровень вложенности.
+ *
+ * @return string Форматированная строка.
+ */
+
+function stringifyStylishArray(array $value, string $replacer, int $spacesCount, int $depth): string
 {
     $currentIndent = str_repeat($replacer, $spacesCount * $depth);
     $bracketIndent = str_repeat($replacer, $spacesCount * ($depth - 1));
     $lines = ['{'];
 
     foreach ($value as $key => $val) {
-        $stringValue = strValue($val, $replacer, $spacesCount, $depth);
+        $stringValue = stringifyValue($val, 'stylish', $replacer, $spacesCount, $depth);
         $lines[] = "{$currentIndent}{$key}: {$stringValue}";
     }
 
@@ -31,8 +74,25 @@ function stringifyPlainArray(array $value, string $replacer, int $spacesCount, i
     return implode("\n", $lines);
 }
 
-function stringify(array $value, string $replacer = ' ', int $spacesCount = 4, int $depth = 1): string
-{
+/**
+ * Рекурсивно форматирует diff-массив в стиль "stylish".
+ *
+ * @param array  $value        Массив различий.
+ * @param string $replacer     Символ отступа.
+ * @param int    $spacesCount  Размер отступа.
+ * @param int    $depth        Уровень вложенности.
+ *
+ * @return string Строка в стиле stylish.
+ *
+ * @throws \Exception Если встречен неизвестный статус.
+ */
+
+function formatAsStylish(
+    array $value,
+    string $replacer = ' ',
+    int $spacesCount = 4,
+    int $depth = 1
+): string {
     $currentIndent = str_repeat($replacer, $spacesCount * $depth - 2);
     $bracketIndent = str_repeat($replacer, $spacesCount * ($depth - 1));
 
@@ -42,99 +102,113 @@ function stringify(array $value, string $replacer = ' ', int $spacesCount = 4, i
         $key = $node['key'];
         $status = $node['status'];
 
-        $lines[] = match ($status) {
-            Status::NESTED->value =>
-                "{$currentIndent}  {$key}: " . stringify($node['value'], $replacer, $spacesCount, $depth + 1),
+        $value1 = $node['value1'] ?? null;
+        $value2 = $node['value2'] ?? null;
+        $childValue = $node['value'] ?? null;
 
-            Status::ADDED->value =>
-                "{$currentIndent}+ {$key}: " . strValue($node['value'], $replacer, $spacesCount, $depth),
+        $stylish = fn($val) => stringifyValue($val, 'stylish', $replacer, $spacesCount, $depth);
 
-            Status::REMOVED->value =>
-                "{$currentIndent}- {$key}: " . strValue($node['value'], $replacer, $spacesCount, $depth),
+        switch ($status) {
+            case Status::NESTED->value:
+                $nested = formatAsStylish($childValue, $replacer, $spacesCount, $depth + 1);
+                $lines[] = "{$currentIndent}  {$key}: {$nested}";
+                break;
 
-            Status::UNCHANGED->value =>
-                "{$currentIndent}  {$key}: " . strValue($node['value'], $replacer, $spacesCount, $depth),
+            case Status::ADDED->value:
+                $lines[] = "{$currentIndent}+ {$key}: {$stylish($childValue)}";
+                break;
 
-            Status::UPDATED->value => implode("\n", [
-                "{$currentIndent}- {$key}: " . strValue($node['value1'], $replacer, $spacesCount, $depth),
-                "{$currentIndent}+ {$key}: " . strValue($node['value2'], $replacer, $spacesCount, $depth),
-            ]),
+            case Status::REMOVED->value:
+                $lines[] = "{$currentIndent}- {$key}: {$stylish($childValue)}";
+                break;
 
-            default => throw new \Exception("Неизвестный статус: {$status}"),
-        };
+            case Status::UNCHANGED->value:
+                $lines[] = "{$currentIndent}  {$key}: {$stylish($childValue)}";
+                break;
+
+            case Status::UPDATED->value:
+                $old = $stylish($value1);
+                $new = $stylish($value2);
+                $lines[] = "{$currentIndent}- {$key}: {$old}";
+                $lines[] = "{$currentIndent}+ {$key}: {$new}";
+                break;
+
+            default:
+                throw new \Exception("Неизвестный статус: {$status}");
+        }
     }
 
     $lines[] = "{$bracketIndent}}";
     return implode("\n", $lines);
 }
 
+/**
+ * Форматирует diff в плоский текстовый стиль.
+ *
+ * @param array $nodes Массив узлов diff-дерева.
+ * @param array $path  Текущий путь в дереве свойств.
+ *
+ * @return string Отформатированная строка.
+ */
+
+function formatAsPlain(array $nodes, array $path = []): string
+{
+    $lines = [];
+
+    foreach ($nodes as $node) {
+        $key = $node['key'];
+        $propertyPath = [...$path, $key];
+        $fullPath = implode('.', $propertyPath);
+        $status = $node['status'];
+
+        switch ($status) {
+            case Status::NESTED->value:
+                $lines[] = formatAsPlain($node['value'], $propertyPath);
+                break;
+
+            case Status::ADDED->value:
+                $value = stringifyValue($node['value'], 'plain');
+                $lines[] = "Property '{$fullPath}' was added with value: {$value}";
+                break;
+
+            case Status::REMOVED->value:
+                $lines[] = "Property '{$fullPath}' was removed";
+                break;
+
+            case Status::UPDATED->value:
+                $oldValue = stringifyValue($node['value1'], 'plain');
+                $newValue = stringifyValue($node['value2'], 'plain');
+                $lines[] = "Property '{$fullPath}' was updated. From {$oldValue} to {$newValue}";
+                break;
+        }
+    }
+
+    return implode("\n", $lines);
+}
+
+/**
+ * Форматирует diff-дерево в JSON формат.
+ *
+ * @param array $data Данные diff.
+ *
+ * @return string Строка в формате JSON.
+ */
+
 function formatedAsJson(array $data): string
 {
     return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 }
 
-function formatAsStylish(array $value): string
-{
-    return stringify($value);
-}
-
-
-function toString(mixed $value): string
-{
-    return match (true) {
-        is_array($value) => '[complex]',
-        default => (string) $value,
-    };
-}
-
-function formatAsPlain(mixed $value, array $path = []): string
-{
-    $lines = [];
-    foreach ($value as $node) {
-        $status = $node['status'];
-        $path[] = $node['key'];
-
-
-        // $lines[] = match ($status) {
-        //     Status::NESTED->value =>
-        //         formatAsPlain($node['value'], $path),
-
-        //     Status::ADDED->value =>
-        //         //'Propery ' .  implode('.', $path) . ' added ' . toString($node['value']),
-        //         "Property '{implode('.', $path)}' was added with value: false"
-
-        //     Status::REMOVE->value =>
-        //         'Propery remove ' . toString($node['value']),
-
-        //     Status::UNCHANGED->value =>
-        //         'Propery unchanged ' . toString($node['value']),
-
-        //     Status::UPDATED->value => implode("\n", [
-        //         'Propery added ' . toString($node['value1']),
-        //         'Propery remove ' . toString($node['value2'])
-        //     ]),
-        // };
-        $lines = [];
-        switch($status) {
-            case Status::NESTED->value:
-                $lines[] = formatAsPlain($node['value'], $path);
-                break;
-            case Status::ADDED->value:
-                $strPath = implode('.', $path);
-                $lines[] = "Property '$strPath' was added with value: {$value['value']}";
-                break;
-            case Status::REMOVED->value:
-                $lines[] = "Property '$strPath' was removed";
-                break;
-            case Status::UPDATED->value:
-                break;
-            default:
-                break;
-        }
-    };
-
-    return implode("\n", $lines);
-}
+/**
+ * Выбирает и вызывает нужный форматтер.
+ *
+ * @param array  $data   Данные для форматирования.
+ * @param string $format Формат: 'stylish', 'plain', 'json'.
+ *
+ * @return string Отформатированный результат.
+ *
+ * @throws \InvalidArgumentException Если формат не поддерживается.
+ */
 
 function formatOutput(array $data, string $format): string
 {
