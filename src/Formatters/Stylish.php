@@ -7,14 +7,14 @@ use Differ\enums\Status;
 use function Differ\Formatters\Helpers\stringifyValue;
 
 /**
- * Рекурсивно форматирует diff-массив в стиль "stylish".
+ * Форматирует diff-дерево в Stylish формат..
  *
  * @param array  $value        Массив различий.
  * @param string $replacer     Символ отступа.
  * @param int    $spacesCount  Размер отступа.
  * @param int    $depth        Уровень вложенности.
  *
- * @return string Строка в стиле stylish.
+ * @return string Отформатированная строка.
  *
  * @throws \Exception Если встречен неизвестный статус.
  */

@@ -9,3 +9,15 @@ test-coverage-text:
 
 lint:
 	./vendor/bin/phpcs
+
+link:
+	sudo ln -sf $(PWD)/bin/gendiff /usr/local/bin/gendiff
+
+link-wsl:
+	sudo ln -sf $(PWD)/bin/gendiff /usr/local/bin/gendiff
+
+unlink:
+	sudo rm -f /usr/local/bin/gendiff
+
+unlink-wsl:
+	sudo rm -f /usr/local/bin/gendiff

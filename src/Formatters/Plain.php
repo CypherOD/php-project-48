@@ -7,7 +7,7 @@ use Differ\enums\Status;
 use function Differ\Formatters\Helpers\stringifyValue;
 
 /**
- * Форматирует diff в плоский текстовый стиль.
+ * Форматирует diff-дерево в plain формат..
  *
  * @param array $nodes Массив узлов diff-дерева.
  * @param array $path  Текущий путь в дереве свойств.
