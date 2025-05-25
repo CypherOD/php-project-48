@@ -28,9 +28,7 @@ function formatAsStylish(
     $currentIndent = str_repeat($replacer, $spacesCount * $depth - 2);
     $bracketIndent = str_repeat($replacer, $spacesCount * ($depth - 1));
 
-    $lines = ['{'];
-
-    foreach ($value as $node) {
+    $lines = array_reduce($value, function ($acc, $node) use ($currentIndent, $replacer, $spacesCount, $depth) {
         $key = $node['key'];
         $status = $node['status'];
 
@@ -43,32 +41,34 @@ function formatAsStylish(
         switch ($status) {
             case Status::NESTED->value:
                 $nested = formatAsStylish($childValue, $replacer, $spacesCount, $depth + 1);
-                $lines[] = "{$currentIndent}  {$key}: {$nested}";
+                $acc[] = "{$currentIndent}  {$key}: {$nested}";
                 break;
 
             case Status::ADDED->value:
-                $lines[] = "{$currentIndent}+ {$key}: {$stylish($childValue)}";
+                $acc[] = "{$currentIndent}+ {$key}: {$stylish($childValue)}";
                 break;
 
             case Status::REMOVED->value:
-                $lines[] = "{$currentIndent}- {$key}: {$stylish($childValue)}";
+                $acc[] = "{$currentIndent}- {$key}: {$stylish($childValue)}";
                 break;
 
             case Status::UNCHANGED->value:
-                $lines[] = "{$currentIndent}  {$key}: {$stylish($childValue)}";
+                $acc[] = "{$currentIndent}  {$key}: {$stylish($childValue)}";
                 break;
 
             case Status::UPDATED->value:
                 $old = $stylish($value1);
                 $new = $stylish($value2);
-                $lines[] = "{$currentIndent}- {$key}: {$old}";
-                $lines[] = "{$currentIndent}+ {$key}: {$new}";
+                $acc[] = "{$currentIndent}- {$key}: {$old}";
+                $acc[] = "{$currentIndent}+ {$key}: {$new}";
                 break;
 
             default:
                 throw new \Exception("Неизвестный статус: {$status}");
         }
-    }
+
+        return $acc;
+    }, ['{']);
 
     $lines[] = "{$bracketIndent}}";
     return implode("\n", $lines);

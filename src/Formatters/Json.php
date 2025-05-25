@@ -7,7 +7,7 @@ namespace Differ\Formatters\Json;
  *
  * @param array $data Данные diff.
  *
- * @return string Строка в формате JSON.
+ * @return string Отформатированная строка.
  */
 
 function formatedAsJson(array $data): string
