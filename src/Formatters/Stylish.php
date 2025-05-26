@@ -55,11 +55,10 @@ function stringifyArray(array $value, string $replacer, int $spacesCount, int $d
             $stringValue = stringifyStylishValue($value[$key], $replacer, $spacesCount, $depth);
             return [...$acc, "{$currentIndent}{$key}: {$stringValue}"];
         },
-        ['{']
+        []
     );
 
-    $lines = [...$lines, "{$bracketIndent}}"];
-    return implode("\n", $lines);
+    return implode("\n", ['{', ...$lines, "{$bracketIndent}}"]);
 }
 
 
@@ -119,6 +118,5 @@ function formatAsStylish(
         }
     }, []);
 
-    $lines = ['{', ...$lines, "{$bracketIndent}}"];
-    return implode("\n", $lines);
+    return implode("\n", ['{', ...$lines, "{$bracketIndent}}"]);
 }
