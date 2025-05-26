@@ -78,37 +78,37 @@ function buildDiffLine(array $acc, string $key, array $data1, array $data2): arr
 
 
     if ($has1 && !$has2) {
-        $acc[] = [
+        $newItem = [
             'key' => $key,
             'value' => $val1,
             'status' => Status::REMOVED->value,
         ];
     } elseif (!$has1 && $has2) {
-        $acc[] = [
+        $newItem = [
             'key' => $key,
             'value' => $val2,
             'status' => Status::ADDED->value,
         ];
     } elseif (is_array($val1) && is_array($val2) && isAssoc($val1) && isAssoc($val2)) {
-        $acc[] = [
+        $newItem = [
             'key' => $key,
             'value' => compareTwoArrays($val1, $val2),
             'status' => Status::NESTED->value,
         ];
     } elseif ($val1 !== $val2) {
-        $acc[] = [
+        $newItem = [
             'key' => $key,
             'value1' => $val1,
             'value2' => $val2,
             'status' => Status::UPDATED->value,
         ];
     } else {
-        $acc[] = [
+        $newItem = [
             'key' => $key,
             'value' => $val1,
             'status' => Status::UNCHANGED->value,
         ];
     }
 
-    return $acc;
+    return [...$acc, $newItem];
 }
