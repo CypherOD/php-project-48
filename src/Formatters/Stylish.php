@@ -117,8 +117,8 @@ function formatAsStylish(
             default:
                 throw new \RuntimeException("Неизвестный статус: {$status}");
         }
-    }, ['{']);
+    }, []);
 
-    $lines = [...$lines, "{$bracketIndent}}"];
+    $lines = ['{', ...$lines, "{$bracketIndent}}"];
     return implode("\n", $lines);
 }
