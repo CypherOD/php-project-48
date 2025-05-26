@@ -3,6 +3,7 @@
 namespace Differ\Formatters\Stylish;
 
 use Differ\enums\Status;
+use Exception;
 
 /**
  * Преобразует значение в строку.
@@ -14,7 +15,7 @@ use Differ\enums\Status;
  *
  * @return string Строковое представление значения.
  *
- * @throws \Exception Если формат не поддерживается.
+ * @throws Exception Если формат не поддерживается.
  */
 
 function stringifyStylishValue(
@@ -34,12 +35,13 @@ function stringifyStylishValue(
 /**
  * Преобразует ассоциативный массив в форматированную строку для "stylish"-формата.
  *
- * @param array  $value        Вложенный массив.
- * @param string $replacer     Строка для отступов.
- * @param int    $spacesCount  Количество пробелов в одном уровне отступа.
- * @param int    $depth        Текущий уровень вложенности.
+ * @param array $value Вложенный массив.
+ * @param string $replacer Строка для отступов.
+ * @param int $spacesCount Количество пробелов в одном уровне отступа.
+ * @param int $depth Текущий уровень вложенности.
  *
  * @return string Форматированная строка.
+ * @throws Exception
  */
 
 function stringifyArray(array $value, string $replacer, int $spacesCount, int $depth): string
@@ -51,14 +53,12 @@ function stringifyArray(array $value, string $replacer, int $spacesCount, int $d
         array_keys($value),
         function ($acc, $key) use ($value, $replacer, $spacesCount, $depth, $currentIndent) {
             $stringValue = stringifyStylishValue($value[$key], $replacer, $spacesCount, $depth);
-            $acc[] = "{$currentIndent}{$key}: {$stringValue}";
-            return $acc;
+            return [...$acc, "{$currentIndent}{$key}: {$stringValue}"];
         },
         ['{']
     );
 
-    $lines[] = "{$bracketIndent}}";
-
+    $lines = [...$lines, "{$bracketIndent}}"];
     return implode("\n", $lines);
 }
 
@@ -73,7 +73,7 @@ function stringifyArray(array $value, string $replacer, int $spacesCount, int $d
  *
  * @return string Отформатированная строка.
  *
- * @throws \Exception Если встречен неизвестный статус.
+ * @throws Exception Если встречен неизвестный статус.
  */
 
 function formatAsStylish(
@@ -98,35 +98,27 @@ function formatAsStylish(
         switch ($status) {
             case Status::NESTED->value:
                 $nested = formatAsStylish($childValue, $replacer, $spacesCount, $depth + 1);
-                $acc[] = "{$currentIndent}  {$key}: {$nested}";
-                break;
+                return [...$acc, "{$currentIndent}  {$key}: {$nested}"];
 
             case Status::ADDED->value:
-                $acc[] = "{$currentIndent}+ {$key}: {$stylish($childValue)}";
-                break;
+                return [...$acc, "{$currentIndent}+ {$key}: {$stylish($childValue)}"];
 
             case Status::REMOVED->value:
-                $acc[] = "{$currentIndent}- {$key}: {$stylish($childValue)}";
-                break;
+                return [...$acc, "{$currentIndent}- {$key}: {$stylish($childValue)}"];
 
             case Status::UNCHANGED->value:
-                $acc[] = "{$currentIndent}  {$key}: {$stylish($childValue)}";
-                break;
+                return [...$acc, "{$currentIndent}  {$key}: {$stylish($childValue)}"];
 
             case Status::UPDATED->value:
                 $old = $stylish($value1);
                 $new = $stylish($value2);
-                $acc[] = "{$currentIndent}- {$key}: {$old}";
-                $acc[] = "{$currentIndent}+ {$key}: {$new}";
-                break;
+                return [...$acc, "{$currentIndent}- {$key}: {$old}", "{$currentIndent}+ {$key}: {$new}"];
 
             default:
-                throw new \Exception("Неизвестный статус: {$status}");
+                throw new \RuntimeException("Неизвестный статус: {$status}");
         }
-
-        return $acc;
     }, ['{']);
 
-    $lines[] = "{$bracketIndent}}";
+    $lines = [...$lines, "{$bracketIndent}}"];
     return implode("\n", $lines);
 }

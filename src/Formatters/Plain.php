@@ -42,7 +42,6 @@ function formatAsPlain(array $nodes, array $path = []): string
 
         switch ($status) {
             case Status::NESTED->value:
-                // Рекурсивный вызов возвращает строку, разбиваем на строки для объединения
                 return [...$acc, ...explode("\n", formatAsPlain($node['value'], $propertyPath))];
 
             case Status::ADDED->value:
