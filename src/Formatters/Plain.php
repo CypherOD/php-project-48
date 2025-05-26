@@ -4,7 +4,24 @@ namespace Differ\Formatters\Plain;
 
 use Differ\enums\Status;
 
-use function Differ\Formatters\Helpers\stringifyValue;
+/**
+ * Преобразует значение в строку.
+ *
+ * @param mixed  $value        Значение для форматирования.
+ *
+ * @return string Строковое представление значения.
+ */
+
+function stringifyPlainValue(mixed $value): string
+{
+    return match (true) {
+        is_bool($value) => $value ? 'true' : 'false',
+        is_null($value) => 'null',
+        is_array($value) => '[complex value]',
+        is_numeric($value) => $value,
+        default => "'{$value}'",
+    };
+}
 
 /**
  * Форматирует diff-дерево в plain формат..
@@ -29,7 +46,7 @@ function formatAsPlain(array $nodes, array $path = []): string
                 break;
 
             case Status::ADDED->value:
-                $value = stringifyValue($node['value'], 'plain');
+                $value = stringifyPlainValue($node['value']);
                 $acc[] = "Property '{$fullPath}' was added with value: {$value}";
                 break;
 
@@ -38,8 +55,8 @@ function formatAsPlain(array $nodes, array $path = []): string
                 break;
 
             case Status::UPDATED->value:
-                $oldValue = stringifyValue($node['value1'], 'plain');
-                $newValue = stringifyValue($node['value2'], 'plain');
+                $oldValue = stringifyPlainValue($node['value1']);
+                $newValue = stringifyPlainValue($node['value2']);
                 $acc[] = "Property '{$fullPath}' was updated. From {$oldValue} to {$newValue}";
                 break;
         }
