@@ -5,7 +5,7 @@ namespace DifferTest;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-use function Differ\DIffer\genDiff;
+use function Differ\DIffer\getDiff;
 
 class DifferTest extends TestCase
 {
@@ -15,37 +15,37 @@ class DifferTest extends TestCase
         return realpath(implode('/', $parts));
     }
 
-    #[DataProvider('genDiffStylishProvider')]
+    #[DataProvider('getDiffStylishProvider')]
     public function testGetDiffStylish(string $result, string $file1, string $file2): void
     {
         $pathToResult = $this->getFixtureFullPath($result);
         $pathToFile1 = $this->getFixtureFullPath($file1);
         $pathToFile2 = $this->getFixtureFullPath($file2);
-        $result = genDiff($pathToFile1, $pathToFile2);
+        $result = getDiff($pathToFile1, $pathToFile2);
         $this->assertStringEqualsFile($pathToResult, $result);
     }
 
-    #[DataProvider('genDiffPlainProvider')]
+    #[DataProvider('getDiffPlainProvider')]
     public function testGetDiffPlain(string $result, string $file1, string $file2): void
     {
         $pathToResult = $this->getFixtureFullPath($result);
         $pathToFile1 = $this->getFixtureFullPath($file1);
         $pathToFile2 = $this->getFixtureFullPath($file2);
-        $result = genDiff($pathToFile1, $pathToFile2, 'plain');
+        $result = getDiff($pathToFile1, $pathToFile2, 'plain');
         $this->assertStringEqualsFile($pathToResult, $result);
     }
 
-    #[DataProvider('genDiffJsonProvider')]
+    #[DataProvider('getDiffJsonProvider')]
     public function testGetDiffJson(string $result, string $file1, string $file2): void
     {
         $pathToResult = $this->getFixtureFullPath($result);
         $pathToFile1 = $this->getFixtureFullPath($file1);
         $pathToFile2 = $this->getFixtureFullPath($file2);
-        $result = genDiff($pathToFile1, $pathToFile2, 'json');
+        $result = getDiff($pathToFile1, $pathToFile2, 'json');
         $this->assertStringEqualsFile($pathToResult, $result);
     }
 
-    public static function genDiffStylishProvider(): array
+    public static function getDiffStylishProvider(): array
     {
         return [
             'json' => ['nested_result_stylish.txt', 'nested1.json', 'nested2.json'],
@@ -54,7 +54,7 @@ class DifferTest extends TestCase
         ];
     }
 
-    public static function genDiffPlainProvider(): array
+    public static function getDiffPlainProvider(): array
     {
         return [
             'json' => ['nested_result_plain.txt', 'nested1.json', 'nested2.json'],
@@ -63,7 +63,7 @@ class DifferTest extends TestCase
         ];
     }
 
-    public static function genDiffJsonProvider(): array
+    public static function getDiffJsonProvider(): array
     {
         return [
             'json' => ['nested_result_json.txt', 'nested1.json', 'nested2.json'],

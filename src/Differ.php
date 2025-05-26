@@ -18,7 +18,7 @@ use function Differ\Formatters\formatOutput;
  * @return string Форматированный результат различий.
  */
 
-function genDiff(string $path1, string $path2, string $format = 'stylish'): string
+function getDiff(string $path1, string $path2, string $format = 'stylish'): string
 {
     $data1 = parseFile($path1);
     $data2 = parseFile($path2);
