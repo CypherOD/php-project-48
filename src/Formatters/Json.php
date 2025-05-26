@@ -15,9 +15,5 @@ use JsonException;
 
 function formatedAsJson(array $data): string
 {
-    $json = json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
-    if ($json === false) {
-        throw new \RuntimeException('Failed to encode JSON');
-    }
-    return $json;
+    return json_encode($data, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
 }
