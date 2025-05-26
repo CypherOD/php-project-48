@@ -46,14 +46,19 @@ function stringifyArray(array $value, string $replacer, int $spacesCount, int $d
 {
     $currentIndent = str_repeat($replacer, $spacesCount * $depth);
     $bracketIndent = str_repeat($replacer, $spacesCount * ($depth - 1));
-    $lines = ['{'];
 
-    foreach ($value as $key => $val) {
-        $stringValue = stringifyStylishValue($val, $replacer, $spacesCount, $depth);
-        $lines[] = "{$currentIndent}{$key}: {$stringValue}";
-    }
+    $lines = array_reduce(
+        array_keys($value),
+        function ($acc, $key) use ($value, $replacer, $spacesCount, $depth, $currentIndent) {
+            $stringValue = stringifyStylishValue($value[$key], $replacer, $spacesCount, $depth);
+            $acc[] = "{$currentIndent}{$key}: {$stringValue}";
+            return $acc;
+        },
+        ['{']
+    );
 
     $lines[] = "{$bracketIndent}}";
+
     return implode("\n", $lines);
 }
 
