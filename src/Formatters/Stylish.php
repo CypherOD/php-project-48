@@ -85,7 +85,7 @@ function formatAsStylish(
     $currentIndent = str_repeat($replacer, $spacesCount * $depth - 2);
     $bracketIndent = str_repeat($replacer, $spacesCount * ($depth - 1));
 
-    $lines = array_reduce($value, function ($acc, $node) use ($currentIndent, $replacer, $spacesCount, $depth) {
+    $lines = array_reduce($value, function (array $acc, $node) use ($currentIndent, $replacer, $spacesCount, $depth) {
         $key = $node['key'];
         $status = $node['status'];
 
