@@ -18,7 +18,7 @@ function stringifyPlainValue(mixed $value): string
         is_bool($value) => $value ? 'true' : 'false',
         is_null($value) => 'null',
         is_array($value) => '[complex value]',
-        is_numeric($value) => $value,
+        is_numeric($value) => (string) $value,
         default => "'{$value}'",
     };
 }
@@ -42,26 +42,24 @@ function formatAsPlain(array $nodes, array $path = []): string
 
         switch ($status) {
             case Status::NESTED->value:
-                $acc[] = formatAsPlain($node['value'], $propertyPath);
-                break;
+                // Рекурсивный вызов возвращает строку, разбиваем на строки для объединения
+                return [...$acc, ...explode("\n", formatAsPlain($node['value'], $propertyPath))];
 
             case Status::ADDED->value:
                 $value = stringifyPlainValue($node['value']);
-                $acc[] = "Property '{$fullPath}' was added with value: {$value}";
-                break;
+                return [...$acc, "Property '{$fullPath}' was added with value: {$value}"];
 
             case Status::REMOVED->value:
-                $acc[] = "Property '{$fullPath}' was removed";
-                break;
+                return [...$acc, "Property '{$fullPath}' was removed"];
 
             case Status::UPDATED->value:
                 $oldValue = stringifyPlainValue($node['value1']);
                 $newValue = stringifyPlainValue($node['value2']);
-                $acc[] = "Property '{$fullPath}' was updated. From {$oldValue} to {$newValue}";
-                break;
-        }
+                return [...$acc, "Property '{$fullPath}' was updated. From {$oldValue} to {$newValue}"];
 
-        return $acc;
+            default:
+                return $acc;
+        }
     }, []);
 
     return implode("\n", $lines);
