@@ -51,7 +51,7 @@ function stringifyArray(array $value, string $replacer, int $spacesCount, int $d
 
     $lines = array_reduce(
         array_keys($value),
-        function ($acc, $key) use ($value, $replacer, $spacesCount, $depth, $currentIndent) {
+        function (array $acc, $key) use ($value, $replacer, $spacesCount, $depth, $currentIndent) {
             $stringValue = stringifyStylishValue($value[$key], $replacer, $spacesCount, $depth);
             return [...$acc, "{$currentIndent}{$key}: {$stringValue}"];
         },
