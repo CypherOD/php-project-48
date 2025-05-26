@@ -54,14 +54,6 @@ make unlink  # удаляет ссылку (Linux/macOS)
 make unlink-wsl  # удаляет ссылку с sudo для WSL (Windows/Wsl)
 ````
 
-### Установка как зависимости (библиотеки):
-
-```bash 
-composer require -/Differ
-```
-
-**В процессе реализации**
-
 Подключение в коде:
 
 ```php
