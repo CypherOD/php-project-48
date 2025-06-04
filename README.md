@@ -45,7 +45,8 @@
 git clone https://github.com/gennadiy-dev/php-project-48.git
 cd php-project-48
 
-make install # установка зависимостей
+make install  # установка зависимостей
+make validate  # линтинг кода
 
 make link  # делает команду `gendiff` доступной глобально (Linux/macOS)
 make link-wsl  # делает команду `gendiff` доступной глобально (Windows/Wsl)
