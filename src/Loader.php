@@ -20,7 +20,7 @@ function loadAndParse(string $path): array
     $content = getFileContents($path);
     $ext = pathinfo($path, PATHINFO_EXTENSION);
 
-    if (!$ext) {
+    if ($ext === '') {
         throw new RuntimeException("File has no extension: $path");
     }
 
