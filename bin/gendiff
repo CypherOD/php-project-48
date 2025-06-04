@@ -31,5 +31,5 @@ try {
     $result = genDiff($args['<firstFile>'], $args['<secondFile>'], $args['--format']);
     echo $result . PHP_EOL;
 } catch (Exception $e) {
-    echo $e->getMessage() . PHP_EOL;
+    echo $e->getMessage();
 }

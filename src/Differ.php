@@ -3,8 +3,11 @@
 namespace Differ\Differ;
 
 use Differ\Enums\Status;
+use JsonException;
+use RuntimeException;
+
 use function Differ\Formatters\formatOutput;
-use function Differ\Parsers\parseFile;
+use function Differ\Loader\loadAndParse;
 
 /**
  * Генерирует различия между двумя файлами и возвращает результат в заданном формате.
@@ -15,12 +18,13 @@ use function Differ\Parsers\parseFile;
  *                      Допустимые значения: 'stylish', 'plain', 'json'.
  *
  * @return string Форматированный результат различий.
+ * @throws JsonException|RuntimeException В случае отсутствия расширения или ошибок парсинга.
  */
 
 function genDiff(string $path1, string $path2, string $format = 'stylish'): string
 {
-    $data1 = parseFile($path1);
-    $data2 = parseFile($path2);
+    $data1 = loadAndParse($path1);
+    $data2 = loadAndParse($path2);
     $result = compareTwoArrays($data1, $data2);
     return formatOutput($result, $format);
 }

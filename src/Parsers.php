@@ -4,9 +4,8 @@ namespace Differ\Parsers;
 
 use JsonException;
 use RuntimeException;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
-
-use function Differ\FileReader\getFileContents;
 
 /**
  * Парсит строку в формате JSON в ассоциативный массив.
@@ -28,7 +27,7 @@ function parseJson(string $data): array
  * @param string $data Строка в формате YAML.
  * @return array Результирующий ассоциативный массив.
  *
- * @throws \Symfony\Component\Yaml\Exception\ParseException Если YAML содержит синтаксическую ошибку.
+ * @throws ParseException Если YAML содержит синтаксическую ошибку.
  */
 function parseYaml(string $data): array
 {
@@ -37,31 +36,22 @@ function parseYaml(string $data): array
 }
 
 /**
- * Читает и парсит файл в зависимости от его расширения (json/yaml/yml).
+ * Преобразует строку данных в ассоциативный массив на основе формата.
  *
- * @param string $path Путь к файлу.
+ * @param string $data   Строка, содержащая данные в формате JSON или YAML.
+ * @param string $format Формат данных ('json', 'yaml', 'yml').
  *
- * @return array Ассоциативный массив содержимого файла.
+ * @return array Ассоциативный массив, полученный после парсинга.
  *
- * @throws RuntimeException|JsonException В случае отсутствия расширения или неподдерживаемого формата.
+ * @throws RuntimeException Если указан неподдерживаемый формат.
+ * @throws JsonException Если данные в формате JSON содержат синтаксические ошибки.
+ * @throws ParseException Если данные YAML некорректны.
  */
-function parseFile(string $path): array
+function parse(string $data, string $format): array
 {
-    try {
-        $content = getFileContents($path);
-        $pathInfo = pathinfo($path);
-
-        if (!isset($pathInfo['extension'])) {
-            throw new RuntimeException('File has no extension' . PHP_EOL);
-        }
-
-        $ext = strtolower($pathInfo['extension']);
-        return match ($ext) {
-            'json' => parseJson($content),
-            'yml', 'yaml' => parseYaml($content),
-            default => throw new RuntimeException("Unsupported format: $ext"),
-        };
-    } catch (RuntimeException $e) {
-        throw new RuntimeException("Filed parse file '$path': " . $e->getMessage() . PHP_EOL, 0, $e);
-    }
+    return match (strtolower($format)) {
+        'json' => parseJson($data),
+        'yml', 'yaml' => parseYaml($data),
+        default => throw new RuntimeException("Unsupported format: $format"),
+    };
 }

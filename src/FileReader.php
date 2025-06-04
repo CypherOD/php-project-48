@@ -15,13 +15,13 @@ use RuntimeException;
 function getFileContents(string $path): string
 {
     if (!file_exists($path)) {
-        throw new RuntimeException("File not found: $path" . PHP_EOL);
+        throw new RuntimeException("Cannot read file: $path");
     }
 
     $content = file_get_contents($path);
 
     if ($content === false) {
-        throw new RuntimeException("Failed to read file: $path" . PHP_EOL);
+        throw new RuntimeException("Failed to read file: $path");
     }
 
     return $content;
