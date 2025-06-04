@@ -2,7 +2,7 @@
 
 namespace Differ\Formatters\Stylish;
 
-use Differ\enums\Status;
+use Differ\Enums\Status;
 use Exception;
 
 /**

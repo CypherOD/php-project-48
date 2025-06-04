@@ -6,10 +6,8 @@
         "bin/gendiff"
     ],
     "autoload": {
-        "psr-4": {
-            "Differ\\": "src/"
-        },
         "files": [
+            "src/Enums/Status.php",
             "src/Differ.php",
             "src/FileReader.php",
             "src/Parsers.php",

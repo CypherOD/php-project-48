@@ -2,10 +2,9 @@
 
 namespace Differ\Differ;
 
-use Differ\enums\Status;
-
-use function Differ\Parsers\parseFile;
+use Differ\Enums\Status;
 use function Differ\Formatters\formatOutput;
+use function Differ\Parsers\parseFile;
 
 /**
  * Генерирует различия между двумя файлами и возвращает результат в заданном формате.

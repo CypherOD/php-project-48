@@ -2,7 +2,7 @@
 
 namespace Differ\Formatters\Plain;
 
-use Differ\enums\Status;
+use Differ\Enums\Status;
 
 /**
  * Преобразует значение в строку.

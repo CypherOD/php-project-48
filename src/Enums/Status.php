@@ -1,6 +1,6 @@
 <?php
 
-namespace Differ\enums;
+namespace Differ\Enums;
 
 /**
  * Перечисление возможных статусов различий между значениями.
