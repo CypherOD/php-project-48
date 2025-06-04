@@ -17,7 +17,7 @@ jobs:
             php-version: '8.4'
             tools: composer:v2
       # run – произвольная bash-команда
-      - run: composer install
+      - run: make install
       - run: make lint
       - run: make test-coverage
 

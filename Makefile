@@ -1,3 +1,9 @@
+install:
+	composer install
+
+validate:
+	@vendor/bin/phpcs --standard=PSR12 src
+
 test:
 	composer exec --verbose phpunit tests -- --testdox
 
